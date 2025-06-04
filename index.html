@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitor de Enchentes - FloodGuard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #005f73;
+    }
+    .sensor-box {
+      background: #fff;
+      padding: 30px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .valor {
+      font-size: 2rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌧️ Monitor de Ambiente - FloodGuard</h1>
+  <div class="sensor-box">
+    <h2>🌡️ Temperatura</h2>
+    <div id="temp" class="valor">-- °C</div>
+  </div>
+  <div class="sensor-box">
+    <h2>💧 Umidade</h2>
+    <div id="hum" class="valor">-- %</div>
+  </div>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script>
+    const broker = "wss://broker.hivemq.com:8000/mqtt";
+    const topic = "floodguard/ambiente"; 
+
+    const client = mqtt.connect(broker);
+
+    client.on("connect", () => {
+      console.log("Conectado ao broker MQTT");
+      client.subscribe(topic);
+    });
+
+    client.on("message", (t, payload) => {
+      if (t === topic) {
+        try {
+          const dados = JSON.parse(payload.toString());
+          document.getElementById("temp").innerText = dados.temperatura + " °C";
+          document.getElementById("hum").innerText = dados.umidade + " %";
+        } catch (e) {
+          console.error("Erro ao processar JSON:", e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
