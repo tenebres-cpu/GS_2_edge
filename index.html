@@ -1,66 +1,226 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Monitor de Enchentes - FloodGuard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monitor de Enchente - Zona Norte</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --danger-color: #e74c3c;
+      --success-color: #2ecc71;
+      --text-color: #34495e;
+      --bg-color: #f8f9fa;
+    }
+    
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f4f8;
-      text-align: center;
-      padding: 50px;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s;
     }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+    
     h1 {
-      color: #005f73;
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+      font-weight: 500;
+      text-align: center;
     }
-    .sensor-box {
-      background: #fff;
-      padding: 30px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    
+    .data-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s;
     }
-    .valor {
+    
+    .data-card:hover {
+      transform: translateY(-3px);
+    }
+    
+    .data-icon {
       font-size: 2rem;
-      margin-top: 10px;
+      margin-right: 1.5rem;
+      width: 50px;
+      text-align: center;
+    }
+    
+    .temp-icon {
+      color: var(--danger-color);
+    }
+    
+    .hum-icon {
+      color: var(--secondary-color);
+    }
+    
+    .data-content {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .data-label {
+      font-size: 1rem;
+      color: #7f8c8d;
+      margin-bottom: 0.3rem;
+    }
+    
+    .data-value {
+      font-size: 2rem;
+      font-weight: 500;
+    }
+    
+    .status-bar {
+      margin-top: 2rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background-color: #f1f1f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .status-icon {
+      margin-right: 0.5rem;
+    }
+    
+    .online {
+      color: var(--success-color);
+    }
+    
+    .offline {
+      color: var(--danger-color);
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .data-value {
+        font-size: 1.8rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🌧️ Monitor de Ambiente - FloodGuard</h1>
-  <div class="sensor-box">
-    <h2>🌡️ Temperatura</h2>
-    <div id="temp" class="valor">-- °C</div>
-  </div>
-  <div class="sensor-box">
-    <h2>💧 Umidade</h2>
-    <div id="hum" class="valor">-- %</div>
+  <div class="container">
+    <h1><i class="fas fa-water"></i> Monitoramento de Enchentes - Zona Norte</h1>
+    
+    <div class="data-card">
+      <div class="data-icon temp-icon">
+        <i class="fas fa-thermometer-half"></i>
+      </div>
+      <div class="data-content">
+        <div class="data-label">TEMPERATURA ATUAL</div>
+        <div class="data-value" id="temp">-- °C</div>
+      </div>
+    </div>
+    
+    <div class="data-card">
+      <div class="data-icon hum-icon">
+        <i class="fas fa-tint"></i>
+      </div>
+      <div class="data-content">
+        <div class="data-label">UMIDADE RELATIVA</div>
+        <div class="data-value" id="hum">-- %</div>
+      </div>
+    </div>
+    
+    <div class="status-bar" id="connection-status">
+      <span class="status-icon"><i class="fas fa-circle-notch fa-spin"></i></span>
+      <span>Conectando ao servidor MQTT...</span>
+    </div>
   </div>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
-    const broker = "wss://broker.hivemq.com:8000/mqtt";
-    const topic = "floodguard/ambiente"; 
-
-    const client = mqtt.connect(broker);
+    const topic = "fiware/sensor/dht11";
+    const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+    const statusElement = document.getElementById('connection-status');
 
     client.on("connect", () => {
-      console.log("Conectado ao broker MQTT");
-      client.subscribe(topic);
+      console.log("✅ Conectado ao broker MQTT");
+      statusElement.innerHTML = `
+        <span class="status-icon online"><i class="fas fa-check-circle"></i></span>
+        <span>Conectado ao servidor MQTT | Tópico: ${topic}</span>
+      `;
+      
+      client.subscribe(topic, (err) => {
+        if (err) {
+          console.error("❌ Falha ao se inscrever no tópico:", err);
+          statusElement.innerHTML = `
+            <span class="status-icon offline"><i class="fas fa-exclamation-circle"></i></span>
+            <span>Erro ao assinar tópico: ${topic}</span>
+          `;
+        } else {
+          console.log("📡 Inscrito no tópico:", topic);
+        }
+      });
     });
 
     client.on("message", (t, payload) => {
       if (t === topic) {
         try {
           const dados = JSON.parse(payload.toString());
-          document.getElementById("temp").innerText = dados.temperatura + " °C";
-          document.getElementById("hum").innerText = dados.umidade + " %";
+          document.getElementById("temp").innerText = dados.temperature.toFixed(1) + " °C";
+          document.getElementById("hum").innerText = dados.humidity.toFixed(1) + " %";
+          
+          // Efeito visual ao receber novos dados
+          const cards = document.querySelectorAll('.data-card');
+          cards.forEach(card => {
+            card.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+              card.style.transform = '';
+            }, 300);
+          });
         } catch (e) {
-          console.error("Erro ao processar JSON:", e);
+          console.error("❗ Erro ao processar JSON:", e);
         }
       }
     });
+
+    client.on("error", (err) => {
+      console.error("🚨 Erro no cliente MQTT:", err);
+      statusElement.innerHTML = `
+        <span class="status-icon offline"><i class="fas fa-times-circle"></i></span>
+        <span>Erro de conexão com o servidor MQTT</span>
+      `;
+    });
+
+    client.on("offline", () => {
+      statusElement.innerHTML = `
+        <span class="status-icon offline"><i class="fas fa-plug"></i></span>
+        <span>Conexão perdida com o servidor MQTT</span>
+      `;
+    });
   </script>
+
+      <button onclick="window.location.href='http://127.0.0.1:8050'">
+        Ver Gráfico
 </body>
 </html>
