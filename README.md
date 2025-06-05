@@ -1,10 +1,10 @@
 Nome: Marcelo Affonso Fonseca
 RM: 559790
 
-Vídeo: 
+
 
 📌 Visão Geral
-Este projeto demonstra um sistema completo de monitoramento de temperatura e umidade usando:
+Este projeto demonstra um sistema completo de monitoramento de temperatura e umidade usando para problema com enchentes:
 
 Simulação no Wokwi: ESP32 virtual + sensor DHT11.
 
@@ -34,9 +34,6 @@ Vantagens:
 
 Teste rápido sem riscos de danificar componentes.
 
-Compartilhamento fácil do projeto (via link).
-
-👉 Acesse o projeto no Wokwi: Link aqui (adicione seu link)
 
 📊 Dashboard Python
 Os dados simulados (ou reais, se usando hardware físico) são enviados para um servidor local que exibe:
@@ -62,11 +59,9 @@ bash
 pip install dash plotly
 Execute:
 
-bash
-python app.py
+python grafico.py
 🎯 Aplicações
-Monitoramento ambiental (estufas, salas de servidor).
+Monitoramento ambiental (estufas, salas de servidor, enchente).
 
-Prototipagem de projetos IoT antes da implementação física.
 
 Aprendizado de integração entre hardware e software.
