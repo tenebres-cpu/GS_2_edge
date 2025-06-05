@@ -12,7 +12,7 @@ Dashboard em Python: Gráficos interativos em tempo real.
 
 Ideal para estudos de IoT, prototipagem rápida e visualização de dados.
 
-🖥️ (Wokwi)
+🖥️ (Wokwi) https://wokwi.com/projects/432574060536281089
 O Wokwi é uma plataforma de simulação online para projetos de eletrônica e IoT. Neste projeto, ele foi usado para:
 
 🔧 Configuração no Wokwi
